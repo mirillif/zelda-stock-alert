@@ -1,0 +1,55 @@
+{
+  "product": "Nintendo Switch 2 — The Legend of Zelda (édition 40e anniversaire)",
+  "max_price_eur": 600,
+  "stores": [
+    {
+      "id": "carrefour",
+      "name": "Carrefour",
+      "url": "https://www.carrefour.fr/p/console-switch-2-the-legend-of-zelda-ocarina-time-edition-40e-anniversaire-nintendo-0045496337292",
+      "enabled": true
+    },
+    {
+      "id": "fnac",
+      "name": "Fnac",
+      "url": "https://www.fnac.com/Console-Nintendo-Switch-2-Edition-Limitee-40eme-anniversaire-The-Legend-of-Zelda/a21424371/w-4",
+      "enabled": true
+    },
+    {
+      "id": "leclerc",
+      "name": "E.Leclerc — édition classique",
+      "url": "https://www.e.leclerc/fp/console-nintendo-switch-2-edition-40e-anniversaire-de-the-legend-of-zelda-nintendo-switch-2-0045496337292",
+      "enabled": true
+    },
+    {
+      "id": "leclerc-batterie",
+      "name": "E.Leclerc — batterie remplaçable",
+      "url": "https://www.e.leclerc/fp/console-nintendo-switch-2-edition-40e-anniversaire-de-the-legend-of-zelda-ce-produit-contient-une-batterie-remplacable-par-l-utilisateur-nintendo-0045496337568",
+      "enabled": true
+    },
+    {
+      "id": "cultura",
+      "name": "Cultura",
+      "url": "https://www.cultura.com/p-console-nintendo-switch-2-edition-limitee-the-legend-of-zelda-ocarina-of-time-13424072.html",
+      "enabled": true
+    },
+    {
+      "id": "cdiscount",
+      "name": "Cdiscount",
+      "url": "https://www.cdiscount.com/jeux-pc-video-console/nintendo-switch/console-nintendo-switch-2-edition-40eme-annivers/f-10328-ninsw2zeldaoot.html",
+      "enabled": true
+    },
+    {
+      "id": "auchan",
+      "name": "Auchan",
+      "url": "https://www.auchan.fr/nintendo-console-de-jeu-nintendo-switch-2-edition-zelda/pr-C1893413",
+      "enabled": true
+    },
+    {
+      "id": "boulanger",
+      "name": "Boulanger",
+      "url": "https://www.boulanger.com/ref/1247632",
+      "enabled": true,
+      "note": "La fiche renvoyait une 404 lors de la préparation du projet ; sera classée 'inconnue' tant qu'elle n'est pas accessible."
+    }
+  ]
+}
