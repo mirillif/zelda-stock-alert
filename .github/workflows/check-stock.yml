@@ -1,13 +1,13 @@
-name: 🎮 Zelda — alerte stock
+name: Zelda Stock Monitor
 
 on:
   schedule:
-    # Toutes les 5 minutes, décalé par rapport à l'heure pile.
+    # Toutes les 5 minutes (GitHub peut retarder certains passages de quelques minutes).
     - cron: '2-57/5 * * * *'
   workflow_dispatch:
     inputs:
       test_email:
-        description: 'Envoyer un e-mail de test (sans scan)'
+        description: 'Envoyer seulement un e-mail de test'
         type: boolean
         default: false
 
@@ -21,35 +21,58 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: pip
+
       - run: pip install -r requirements.txt
-      - name: Vérifier les enseignes ou tester l'email
+
+      - name: Récupérer les données (branche data)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git clone --quiet --depth 1 --branch data \
+              "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data 2>/dev/null; then
+            echo "Données existantes récupérées"
+          else
+            mkdir -p data && git -C data init --quiet -b data
+            echo "Première exécution : branche data créée"
+          fi
+
+      - name: Vérifier les boutiques ou tester l'e-mail
         env:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           ALERT_TO: ${{ secrets.ALERT_TO }}
-          SMTP_HOST: ${{ vars.SMTP_HOST || 'smtp.gmail.com' }}
-          SMTP_PORT: ${{ vars.SMTP_PORT || '465' }}
-          TEST_EMAIL: ${{ inputs.test_email || false }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          EVENT_NAME: ${{ github.event_name }}
+          DASHBOARD_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          DATA_DIR: data
         run: |
-          if [ "$TEST_EMAIL" = "true" ]; then
+          if [ "${{ inputs.test_email }}" = "true" ]; then
             python watcher.py --test-email
           else
             python watcher.py
           fi
-      - name: Mémoriser les alertes pour éviter les doublons
-        if: ${{ inputs.test_email != true }}
+
+      - name: Publier les données pour le tableau de bord
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if ! git diff --quiet -- state.json; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add state.json
-            git commit -m 'chore: mise à jour des états de stock [skip ci]'
-            git push
-          fi
+          cd data
+          [ -f status.json ] || exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then echo "Rien à publier"; exit 0; fi
+          git commit --quiet --amend -m "données de surveillance" 2>/dev/null \
+            || git commit --quiet -m "données de surveillance"
+          git push --quiet --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data
