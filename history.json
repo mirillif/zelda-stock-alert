@@ -1,0 +1,74 @@
+[
+  {
+    "at": "2026-11-01T10:56:53+00:00",
+    "store_id": "boulanger",
+    "store": "Boulanger",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Le site n'a pas répondu à temps"
+  },
+  {
+    "at": "2026-11-01T10:56:33+00:00",
+    "store_id": "auchan",
+    "store": "Auchan",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Bloqué par la protection anti-robot du site"
+  },
+  {
+    "at": "2026-11-01T10:56:32+00:00",
+    "store_id": "cdiscount",
+    "store": "Cdiscount",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Bloqué par la protection anti-robot du site"
+  },
+  {
+    "at": "2026-11-01T10:56:32+00:00",
+    "store_id": "cultura",
+    "store": "Cultura",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Bloqué par le site (HTTP 403)"
+  },
+  {
+    "at": "2026-11-01T10:56:32+00:00",
+    "store_id": "leclerc-batterie",
+    "store": "E.Leclerc — batterie remplaçable",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Aucun indice fiable (page probablement rendue en JavaScript)"
+  },
+  {
+    "at": "2026-11-01T10:56:31+00:00",
+    "store_id": "leclerc",
+    "store": "E.Leclerc — édition classique",
+    "from": "pending",
+    "to": "over_price",
+    "price": 899.99,
+    "detail": "Commandable mais 899.99 € > plafond 600 €"
+  },
+  {
+    "at": "2026-11-01T10:56:31+00:00",
+    "store_id": "fnac",
+    "store": "Fnac",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Bloqué par le site (HTTP 403)"
+  },
+  {
+    "at": "2026-11-01T10:56:30+00:00",
+    "store_id": "carrefour",
+    "store": "Carrefour",
+    "from": "pending",
+    "to": "unknown",
+    "price": null,
+    "detail": "Bloqué par le site (HTTP 403)"
+  }
+]

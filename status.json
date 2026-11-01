@@ -1,0 +1,192 @@
+{
+  "version": 2,
+  "stores": {
+    "carrefour": {
+      "armed": true,
+      "since": "2026-11-01T10:56:30+00:00",
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:45+00:00"
+    },
+    "fnac": {
+      "armed": true,
+      "since": "2026-11-01T10:56:31+00:00",
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:45+00:00"
+    },
+    "leclerc": {
+      "armed": true,
+      "since": "2026-11-01T10:56:31+00:00",
+      "status": "over_price",
+      "detail": "Commandable mais 999.99 € > plafond 600 €",
+      "price": 999.99,
+      "checked_at": "2026-11-01T23:57:46+00:00"
+    },
+    "leclerc-batterie": {
+      "armed": true,
+      "since": "2026-11-01T10:56:32+00:00",
+      "status": "unknown",
+      "detail": "Aucun indice fiable (page probablement rendue en JavaScript)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00"
+    },
+    "cultura": {
+      "armed": true,
+      "since": "2026-11-01T10:56:32+00:00",
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00"
+    },
+    "cdiscount": {
+      "armed": true,
+      "since": "2026-11-01T10:56:32+00:00",
+      "status": "unknown",
+      "detail": "Bloqué par la protection anti-robot du site",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00"
+    },
+    "auchan": {
+      "armed": true,
+      "since": "2026-11-01T10:56:33+00:00",
+      "status": "unknown",
+      "detail": "Bloqué par la protection anti-robot du site",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:47+00:00"
+    },
+    "boulanger": {
+      "armed": true,
+      "since": "2026-11-01T10:56:53+00:00",
+      "status": "unknown",
+      "detail": "Le site n'a pas répondu à temps",
+      "price": null,
+      "checked_at": "2026-11-01T23:58:07+00:00"
+    }
+  },
+  "system": {
+    "last_warning_at": "2026-11-01T10:56:30+00:00",
+    "last_run_at": "2026-11-01T23:57:45+00:00",
+    "last_run_event": "schedule",
+    "last_run_duration_s": 22
+  },
+  "email": {
+    "configured": true
+  },
+  "product": "Nintendo Switch 2 – The Legend of Zelda – Édition 40e anniversaire",
+  "max_price_eur": 600,
+  "interval_minutes": 5,
+  "updated_at": "2026-11-01T23:57:45+00:00",
+  "view": [
+    {
+      "id": "carrefour",
+      "name": "Carrefour",
+      "url": "https://www.carrefour.fr/p/console-switch-2-the-legend-of-zelda-ocarina-time-edition-40e-anniversaire-nintendo-0045496337292",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:45+00:00",
+      "since": "2026-11-01T10:56:30+00:00",
+      "armed": true
+    },
+    {
+      "id": "fnac",
+      "name": "Fnac",
+      "url": "https://www.fnac.com/Console-Nintendo-Switch-2-Edition-Limitee-40eme-anniversaire-The-Legend-of-Zelda/a21424371/w-4",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:45+00:00",
+      "since": "2026-11-01T10:56:31+00:00",
+      "armed": true
+    },
+    {
+      "id": "leclerc",
+      "name": "E.Leclerc — édition classique",
+      "url": "https://www.e.leclerc/fp/console-nintendo-switch-2-edition-40e-anniversaire-de-the-legend-of-zelda-nintendo-switch-2-0045496337292",
+      "enabled": true,
+      "status": "over_price",
+      "detail": "Commandable mais 999.99 € > plafond 600 €",
+      "price": 999.99,
+      "checked_at": "2026-11-01T23:57:46+00:00",
+      "since": "2026-11-01T10:56:31+00:00",
+      "armed": true
+    },
+    {
+      "id": "leclerc-batterie",
+      "name": "E.Leclerc — batterie remplaçable",
+      "url": "https://www.e.leclerc/fp/console-nintendo-switch-2-edition-40e-anniversaire-de-the-legend-of-zelda-ce-produit-contient-une-batterie-remplacable-par-l-utilisateur-nintendo-0045496337568",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Aucun indice fiable (page probablement rendue en JavaScript)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00",
+      "since": "2026-11-01T10:56:32+00:00",
+      "armed": true
+    },
+    {
+      "id": "cultura",
+      "name": "Cultura",
+      "url": "https://www.cultura.com/p-console-nintendo-switch-2-edition-limitee-the-legend-of-zelda-ocarina-of-time-13424072.html",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Bloqué par le site (HTTP 403)",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00",
+      "since": "2026-11-01T10:56:32+00:00",
+      "armed": true
+    },
+    {
+      "id": "amazon",
+      "name": "Amazon France",
+      "url": "",
+      "enabled": false,
+      "status": "pending",
+      "detail": "Pas encore vérifié",
+      "price": null,
+      "checked_at": null,
+      "since": null,
+      "armed": true
+    },
+    {
+      "id": "cdiscount",
+      "name": "Cdiscount",
+      "url": "https://www.cdiscount.com/jeux-pc-video-console/nintendo-switch/console-nintendo-switch-2-edition-40eme-annivers/f-10328-ninsw2zeldaoot.html",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Bloqué par la protection anti-robot du site",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:46+00:00",
+      "since": "2026-11-01T10:56:32+00:00",
+      "armed": true
+    },
+    {
+      "id": "auchan",
+      "name": "Auchan",
+      "url": "https://www.auchan.fr/nintendo-console-de-jeu-nintendo-switch-2-edition-zelda/pr-C1893413",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Bloqué par la protection anti-robot du site",
+      "price": null,
+      "checked_at": "2026-11-01T23:57:47+00:00",
+      "since": "2026-11-01T10:56:33+00:00",
+      "armed": true
+    },
+    {
+      "id": "boulanger",
+      "name": "Boulanger",
+      "url": "https://www.boulanger.com/ref/1247632",
+      "enabled": true,
+      "status": "unknown",
+      "detail": "Le site n'a pas répondu à temps",
+      "price": null,
+      "checked_at": "2026-11-01T23:58:07+00:00",
+      "since": "2026-11-01T10:56:53+00:00",
+      "armed": true
+    }
+  ]
+}
