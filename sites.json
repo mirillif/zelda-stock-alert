@@ -1,6 +1,7 @@
 {
-  "product": "Nintendo Switch 2 — The Legend of Zelda (édition 40e anniversaire)",
+  "product": "Nintendo Switch 2 – The Legend of Zelda – Édition 40e anniversaire",
   "max_price_eur": 600,
+  "interval_minutes": 5,
   "stores": [
     {
       "id": "carrefour",
@@ -33,6 +34,12 @@
       "enabled": true
     },
     {
+      "id": "amazon",
+      "name": "Amazon France",
+      "url": "",
+      "enabled": false
+    },
+    {
       "id": "cdiscount",
       "name": "Cdiscount",
       "url": "https://www.cdiscount.com/jeux-pc-video-console/nintendo-switch/console-nintendo-switch-2-edition-40eme-annivers/f-10328-ninsw2zeldaoot.html",
@@ -48,8 +55,7 @@
       "id": "boulanger",
       "name": "Boulanger",
       "url": "https://www.boulanger.com/ref/1247632",
-      "enabled": true,
-      "note": "La fiche renvoyait une 404 lors de la préparation du projet ; sera classée 'inconnue' tant qu'elle n'est pas accessible."
+      "enabled": true
     }
   ]
 }

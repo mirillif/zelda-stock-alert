@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Zelda Stock Monitor</title>
+<style>
+  :root{
+    --bg:#f5f2ea; --card:#fffdf8; --ink:#1d1d1b; --muted:#6b675d; --line:#e2dccd;
+    --green:#1f6f43; --green-bg:#e3f1e8; --red:#a33a2b; --red-bg:#f8e5e1;
+    --amber:#8a5a00; --amber-bg:#f8edd3; --grey-bg:#ecebe6; --blue:#25507a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .wrap{max-width:920px;margin:0 auto;padding:20px 16px 60px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  h1{font-size:22px;margin:0;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+  button:hover,.btn:hover{border-color:#bdb5a1}
+  button.primary,.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+  button:disabled{opacity:.55;cursor:default}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .hero{border-radius:var(--radius);padding:20px;margin-bottom:16px;border:1px solid var(--line);background:var(--card)}
+  .hero.ok{background:var(--green-bg);border-color:#b9dcc6}
+  .hero.warn{background:var(--amber-bg);border-color:#ead39a}
+  .hero h2{margin:0 0 4px;font-size:20px}
+  .hero p{margin:0;color:#3d3a33}
+  .notice{border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:14px;background:var(--amber-bg);border:1px solid #ead39a}
+  .notice.err{background:var(--red-bg);border-color:#ecc0b8}
+  .notice a{color:inherit}
+  section{margin-top:26px}
+  section>h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
+  .stores{display:grid;gap:10px}
+  .store{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+  .store.available{border-color:#8fc6a3;box-shadow:0 0 0 2px #cfe8d8}
+  .store .name{font-weight:600;font-size:16px}
+  .store .detail{grid-column:1/-1;color:var(--muted);font-size:13px}
+  .store .meta{color:var(--muted);font-size:13px}
+  .store .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .price{font-weight:600;font-variant-numeric:tabular-nums}
+  .pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .pill.available{background:var(--green-bg);color:var(--green)}
+  .pill.unavailable{background:var(--red-bg);color:var(--red)}
+  .pill.over_price{background:var(--amber-bg);color:var(--amber)}
+  .pill.unknown,.pill.pending,.pill.disabled{background:var(--grey-bg);color:#55524a}
+  .pill.alert_sent{background:#e2ebf5;color:var(--blue)}
+  .store a.buy{background:var(--green);color:#fff;border-color:var(--green);padding:7px 12px;font-size:14px}
+  .store a.open{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  td,th{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;vertical-align:top}
+  th{color:var(--muted);font-weight:600;background:#faf7f0}
+  tr:last-child td{border-bottom:0}
+  .empty{color:var(--muted);font-size:14px;padding:14px;background:var(--card);border:1px dashed var(--line);border-radius:var(--radius)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  input[type=text],input[type=number],input[type=email],input[type=password],input[type=url]{width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .storeedit{display:grid;grid-template-columns:auto 160px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .storeedit:last-child{border-bottom:0}
+  .small{font-size:12px;color:var(--muted)}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1d1d1b;color:#fff;padding:11px 16px;border-radius:10px;font-size:14px;max-width:92vw;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.show{opacity:1}
+  dialog{border:1px solid var(--line);border-radius:var(--radius);padding:20px;max-width:520px;width:92vw;background:var(--card);color:var(--ink)}
+  dialog::backdrop{background:rgba(20,18,12,.35)}
+  ol{padding-left:20px;margin:8px 0}
+  code{background:var(--grey-bg);padding:1px 5px;border-radius:5px;font-size:12.5px}
+  .hidden{display:none!important}
+  @media (max-width:640px){
+    .grid2{grid-template-columns:1fr}
+    .storeedit{grid-template-columns:auto 1fr auto}
+    .storeedit .url{grid-column:1/-1}
+    .hide-sm{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Zelda Stock Monitor</h1>
+      <div class="sub" id="product">Chargement…</div>
+    </div>
+    <div class="row">
+      <button id="btnCheck" class="primary auth hidden" title="Lance un contrôle immédiat">Vérifier maintenant</button>
+      <button id="btnTest" class="auth hidden">Tester l'e-mail</button>
+      <button id="btnLogin">Se connecter</button>
+      <button id="btnLogout" class="auth hidden">Déconnexion</button>
+    </div>
+  </header>
+
+  <div id="notices"></div>
+
+  <div class="hero" id="hero"><h2>Chargement des données…</h2><p></p></div>
+
+  <section>
+    <h3>Boutiques</h3>
+    <div class="stores" id="stores"></div>
+  </section>
+
+  <section>
+    <h3>Historique des changements</h3>
+    <div id="history"></div>
+  </section>
+
+  <section id="settingsSection" class="auth hidden">
+    <h3>Paramètres</h3>
+    <div class="panel">
+      <div class="grid2">
+        <div>
+          <label for="setEmail">Adresse e-mail de notification</label>
+          <input id="setEmail" type="email" placeholder="toi@exemple.com">
+          <div class="small" id="emailHint">Plusieurs adresses possibles, séparées par des virgules. Enregistrée chiffrée (secret GitHub) : laisse vide pour ne pas la changer.</div>
+        </div>
+        <div class="grid2" style="gap:0 10px">
+          <div>
+            <label for="setInterval">Fréquence (minutes)</label>
+            <input id="setInterval" type="number" min="5" step="5">
+          </div>
+          <div>
+            <label for="setMax">Prix maximal (€)</label>
+            <input id="setMax" type="number" min="100" step="1">
+          </div>
+        </div>
+      </div>
+      <label>Boutiques surveillées</label>
+      <div id="storeEditor"></div>
+      <div class="row" style="margin-top:12px;justify-content:space-between">
+        <button id="btnAddStore">+ Ajouter une boutique</button>
+        <button id="btnSave" class="primary">Enregistrer</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="small" style="margin-top:30px" id="footer"></p>
+</div>
+
+<dialog id="loginDialog">
+  <h3 style="margin-top:0">Connexion à ton espace</h3>
+  <p class="small" style="font-size:14px">La consultation est publique en lecture seule. Pour lancer une vérification, tester l'e-mail ou modifier les paramètres, colle ton jeton d'accès GitHub. Il reste uniquement dans ce navigateur.</p>
+  <details>
+    <summary class="small" style="cursor:pointer">Créer le jeton (une seule fois, 2 min)</summary>
+    <ol class="small">
+      <li>Ouvre <a id="patLink" target="_blank" rel="noopener">github.com › Fine-grained token</a></li>
+      <li>Nom : <code>Zelda Monitor</code>, expiration : 1 an</li>
+      <li>Repository access : <b>Only select repositories</b> › <code id="repoName"></code></li>
+      <li>Permissions › Repository : <b>Actions</b>, <b>Contents</b> et <b>Secrets</b> en « Read and write »</li>
+      <li>Generate token, puis colle-le ci-dessous</li>
+    </ol>
+  </details>
+  <label for="tokenInput">Jeton GitHub</label>
+  <input id="tokenInput" type="password" placeholder="github_pat_…" autocomplete="off">
+  <div class="row" style="margin-top:14px;justify-content:flex-end">
+    <button id="btnCancelLogin">Annuler</button>
+    <button id="btnDoLogin" class="primary">Se connecter</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script src="sealedbox.js"></script>
+<script>
+(() => {
+  // ---------- configuration du dépôt
+  const params = new URLSearchParams(location.search);
+  let OWNER = "mirillif", REPO = "zelda-stock-alert";
+  if (location.hostname.endsWith(".github.io")) {
+    OWNER = location.hostname.split(".")[0];
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    if (seg) REPO = seg;
+  }
+  if (params.get("repo")) [OWNER, REPO] = params.get("repo").split("/");
+  const LOCAL_DATA = params.get("data"); // aperçu local : ?data=./chemin/
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const WORKFLOW = "check-stock.yml";
+  const TOKEN_KEY = "zsm_token";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const store = {
+    get(){ try { return localStorage.getItem(TOKEN_KEY) || ""; } catch { return memToken; } },
+    set(v){ memToken = v; try { v ? localStorage.setItem(TOKEN_KEY, v) : localStorage.removeItem(TOKEN_KEY); } catch {} }
+  };
+  let memToken = "";
+  let token = store.get();
+  let status = null, history = [], config = null, configSha = null;
+
+  const LABELS = {
+    available: "Disponible", unavailable: "Rupture", over_price: "Trop cher",
+    unknown: "Vérification impossible", pending: "En attente", disabled: "Désactivée",
+    alert_sent: "Alerte envoyée"
+  };
+
+  function toast(msg, ms = 3500) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), ms);
+  }
+  const fmtPrice = (p) => p == null ? "—" : p.toLocaleString("fr-FR", {style:"currency", currency:"EUR"});
+  function fmtDate(isoStr) {
+    if (!isoStr) return "—";
+    return new Date(isoStr).toLocaleString("fr-FR", {day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit", timeZone:"Europe/Paris"});
+  }
+  function ago(isoStr) {
+    if (!isoStr) return "jamais";
+    const m = Math.round((Date.now() - new Date(isoStr)) / 60000);
+    if (m < 1) return "à l'instant";
+    if (m < 60) return `il y a ${m} min`;
+    const h = Math.floor(m / 60);
+    if (h < 48) return `il y a ${h} h ${String(m % 60).padStart(2,"0")}`;
+    return `il y a ${Math.floor(h/24)} j`;
+  }
+
+  // ---------- accès GitHub
+  async function gh(path, opts = {}) {
+    const headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(opts.headers || {})};
+    if (token) headers.Authorization = `Bearer ${token}`;
+    const r = await fetch(path.startsWith("http") ? path : API + path, {...opts, headers, cache: "no-store"});
+    if (!r.ok && r.status !== 404) {
+      let msg = `GitHub ${r.status}`;
+      try { msg += " — " + (await r.json()).message; } catch {}
+      const e = new Error(msg); e.status = r.status; throw e;
+    }
+    return r;
+  }
+
+  async function readDataFile(name) {
+    if (LOCAL_DATA) {
+      const r = await fetch(LOCAL_DATA + name + "?t=" + Date.now());
+      return r.ok ? r.json() : null;
+    }
+    if (token) {
+      const r = await gh(`/contents/${name}?ref=data`, {headers: {Accept: "application/vnd.github.raw+json"}});
+      return r.status === 404 ? null : r.json();
+    }
+    const r = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/data/${name}?t=${Date.now()}`, {cache: "no-store"});
+    return r.ok ? r.json() : null;
+  }
+
+  async function loadConfig() {
+    if (!token) return;
+    const r = await gh(`/contents/sites.json?ref=main`);
+    if (r.status === 404) throw new Error("sites.json introuvable dans le dépôt");
+    const j = await r.json();
+    configSha = j.sha;
+    const bytes = Uint8Array.from(atob(j.content.replace(/\n/g, "")), c => c.charCodeAt(0));
+    config = JSON.parse(new TextDecoder().decode(bytes));
+  }
+
+  async function loadEmailState() {
+    if (!token) return;
+    const r = await gh(`/actions/secrets/ALERT_TO`);
+    const set = r.status !== 404;
+    $("setEmail").value = "";
+    $("setEmail").placeholder = set ? "•••••• adresse enregistrée (saisir pour remplacer)" : "Par défaut : ton adresse Gmail d'envoi";
+  }
+
+  async function lastRun() {
+    if (LOCAL_DATA) return null;
+    try {
+      const r = await gh(`/actions/workflows/${WORKFLOW}/runs?per_page=1`);
+      if (r.status === 404) return null;
+      return (await r.json()).workflow_runs?.[0] || null;
+    } catch { return null; }
+  }
+
+  // ---------- rendu
+  function render(run) {
+    const notices = [];
+    if (!status) {
+      $("hero").className = "hero warn";
+      $("hero").innerHTML = `<h2>Aucune donnée pour l'instant</h2><p>La première vérification n'a pas encore tourné. Si c'est la mise en route, lance le workflow une fois depuis GitHub (onglet Actions) ou connecte-toi puis clique « Vérifier maintenant ».</p>`;
+      $("stores").innerHTML = ""; $("history").innerHTML = "";
+      $("product").textContent = `${OWNER}/${REPO}`;
+      return;
+    }
+    $("product").textContent = status.product || "";
+    const view = status.view || [];
+    const active = view.filter(s => s.enabled);
+    const avail = active.filter(s => s.status === "available");
+    const over = active.filter(s => s.status === "over_price");
+    const unknown = active.filter(s => s.status === "unknown");
+    const interval = status.interval_minutes || 5;
+    const lastRunAt = status.system?.last_run_at;
+    const staleMin = lastRunAt ? (Date.now() - new Date(lastRunAt)) / 60000 : Infinity;
+
+    if (staleMin > Math.max(30, interval * 4)) {
+      notices.push(`<div class="notice err"><b>La surveillance semble arrêtée</b> : dernier contrôle ${ago(lastRunAt)}. Vérifie l'onglet <a href="https://github.com/${OWNER}/${REPO}/actions" target="_blank" rel="noopener">Actions</a> du dépôt (workflow désactivé ou en erreur).</div>`);
+    }
+    if (run && run.conclusion === "failure") {
+      notices.push(`<div class="notice err">Le dernier passage GitHub a échoué (${fmtDate(run.updated_at)}). <a href="${esc(run.html_url)}" target="_blank" rel="noopener">Voir le détail</a></div>`);
+    }
+    if (!status.email?.configured) {
+      notices.push(`<div class="notice"><b>E-mail non configuré</b> : aucune alerte ne peut partir. Ajoute les secrets <code>SMTP_USERNAME</code> et <code>SMTP_PASSWORD</code> dans <a href="https://github.com/${OWNER}/${REPO}/settings/secrets/actions" target="_blank" rel="noopener">Settings › Secrets › Actions</a>.</div>`);
+    } else if (status.email?.last_error) {
+      notices.push(`<div class="notice err"><b>Dernier envoi d'e-mail en échec</b> : ${esc(status.email.last_error)}</div>`);
+    }
+    if (active.length && unknown.length === active.length) {
+      notices.push(`<div class="notice">Aucune boutique n'a pu être lue au dernier passage. Les sites bloquent peut-être les robots depuis les serveurs GitHub : le statut « Vérification impossible » est affiché tel quel, sans deviner.</div>`);
+    }
+    $("notices").innerHTML = notices.join("");
+
+    const hero = $("hero");
+    if (avail.length) {
+      hero.className = "hero ok";
+      hero.innerHTML = `<h2>Commandable chez ${avail.map(s => esc(s.name)).join(", ")}</h2><p>Ouvre la page d'achat ci-dessous sans attendre.</p>`;
+    } else {
+      hero.className = "hero";
+      const lu = active.length - unknown.length;
+      hero.innerHTML = `<h2>Aucune offre valide pour l'instant</h2>
+        <p>${lu}/${active.length} boutique(s) lue(s) au dernier contrôle, ${ago(lastRunAt)}${over.length ? ` · ${over.length} au-dessus de ${status.max_price_eur} €` : ""}. Contrôle toutes les ${interval} min.</p>`;
+    }
+
+    const order = {available:0, over_price:1, unavailable:2, unknown:3, pending:4};
+    const sorted = [...view].sort((a, b) =>
+      (a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1) || (order[a.status] ?? 9) - (order[b.status] ?? 9));
+    $("stores").innerHTML = sorted.map(s => {
+      const st = s.enabled ? s.status : "disabled";
+      const link = s.url ? (st === "available"
+        ? `<a class="btn buy" href="${esc(s.url)}" target="_blank" rel="noopener">Acheter</a>`
+        : `<a class="open" href="${esc(s.url)}" target="_blank" rel="noopener">Ouvrir la page</a>`) : "";
+      const detail = !s.enabled ? (s.url ? "Désactivée dans les paramètres" : "Aucune URL renseignée : ajoute-la dans les paramètres")
+                                : s.detail;
+      return `<div class="store ${st}">
+        <div><div class="name">${esc(s.name)}</div>
+          <div class="meta">${s.enabled ? `Vérifié ${ago(s.checked_at)}${s.since ? ` · statut depuis ${fmtDate(s.since)}` : ""}` : ""}</div></div>
+        <div class="right"><span class="pill ${st}">${LABELS[st] || st}</span>
+          <span class="price">${s.enabled ? fmtPrice(s.price) : ""}</span></div>
+        <div class="detail">${esc(detail)} ${link ? "· " + link : ""}</div>
+      </div>`;
+    }).join("") || `<div class="empty">Aucune boutique configurée.</div>`;
+
+    const h = (history || []).slice(0, 60);
+    $("history").innerHTML = h.length ? `<table><thead><tr><th>Date</th><th>Boutique</th><th>Changement</th><th class="hide-sm">Prix</th></tr></thead><tbody>
+      ${h.map(e => `<tr><td>${fmtDate(e.at)}</td><td>${esc(e.store)}</td>
+        <td><span class="pill ${e.from}">${LABELS[e.from] || e.from}</span> → <span class="pill ${e.to}">${LABELS[e.to] || e.to}</span>
+        <div class="small">${esc(e.detail)}</div></td>
+        <td class="hide-sm">${fmtPrice(e.price)}</td></tr>`).join("")}
+      </tbody></table>` : `<div class="empty">Aucun changement enregistré pour l'instant.</div>`;
+
+    const em = status.email || {};
+    $("footer").innerHTML = `Données : branche <code>data</code> de ${esc(OWNER)}/${esc(REPO)} · mise à jour ${fmtDate(status.updated_at)}`
+      + (em.last_sent_at ? ` · dernière alerte e-mail ${fmtDate(em.last_sent_at)}` : "")
+      + (em.last_test_at ? ` · dernier test e-mail ${fmtDate(em.last_test_at)} (${em.last_test_ok ? "réussi" : "échec"})` : "")
+      + ` · page actualisée toutes les minutes`;
+  }
+
+  function renderAuth() {
+    const on = !!token;
+    document.querySelectorAll(".auth").forEach(el => el.classList.toggle("hidden", !on));
+    $("btnLogin").classList.toggle("hidden", on);
+  }
+
+  // ---------- paramètres
+  function renderFields() {
+    if (!config) return;
+    $("setInterval").value = config.interval_minutes ?? 5;
+    $("setMax").value = config.max_price_eur ?? 600;
+    renderEditor();
+  }
+  function renderEditor() {
+    if (!config) return;
+    $("storeEditor").innerHTML = config.stores.map((s, i) => `
+      <div class="storeedit" data-i="${i}">
+        <input type="checkbox" data-k="enabled" ${s.enabled !== false ? "checked" : ""} title="Surveiller">
+        <input type="text" data-k="name" value="${esc(s.name)}" placeholder="Nom">
+        <input type="url" class="url" data-k="url" value="${esc(s.url)}" placeholder="https://… (fiche produit)">
+        <button data-del="${i}" title="Supprimer">✕</button>
+      </div>`).join("");
+  }
+  function readEditor() {
+    document.querySelectorAll(".storeedit").forEach(row => {
+      const s = config.stores[+row.dataset.i];
+      row.querySelectorAll("[data-k]").forEach(inp => {
+        s[inp.dataset.k] = inp.type === "checkbox" ? inp.checked : inp.value.trim();
+      });
+    });
+  }
+  function slug(name, taken) {
+    let base = name.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "boutique";
+    let id = base, n = 2;
+    while (taken.has(id)) id = `${base}-${n++}`;
+    return id;
+  }
+
+  async function save() {
+    readEditor();
+    const interval = Math.max(5, Math.round(+$("setInterval").value || 5));
+    const max = +$("setMax").value;
+    if (!(max >= 100)) return toast("Prix maximal invalide");
+    for (const s of config.stores) {
+      if (!s.name) return toast("Chaque boutique doit avoir un nom");
+      if (s.url && !/^https:\/\//.test(s.url)) return toast(`URL invalide pour ${s.name} (https:// requis)`);
+      if (s.enabled && !s.url) s.enabled = false;
+    }
+    const taken = new Set();
+    config.stores.forEach(s => { if (!s.id || taken.has(s.id)) s.id = slug(s.name, taken); taken.add(s.id); });
+    config.interval_minutes = interval;
+    config.max_price_eur = max;
+    $("btnSave").disabled = true;
+    try {
+      const json = JSON.stringify(config, null, 2) + "\n";
+      const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(json)));
+      const r = await gh(`/contents/sites.json`, {method: "PUT", body: JSON.stringify({
+        message: "Paramètres modifiés depuis le tableau de bord", content: b64, sha: configSha, branch: "main"})});
+      configSha = (await r.json()).content.sha;
+
+      const email = $("setEmail").value.trim();
+      if (email) {
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+(\s*,\s*[^@\s]+@[^@\s]+\.[^@\s]+)*$/.test(email)) throw new Error("Adresse e-mail invalide");
+        const key = await (await gh(`/actions/secrets/public-key`)).json();
+        await gh(`/actions/secrets/ALERT_TO`, {method: "PUT", body: JSON.stringify({
+          encrypted_value: window.sealForGitHub(key.key, email), key_id: key.key_id})});
+        await loadEmailState();
+      }
+      toast("Paramètres enregistrés : appliqués au prochain contrôle");
+      renderFields();
+    } catch (e) {
+      toast("Échec de l'enregistrement : " + e.message, 6000);
+      if (e.status === 409) await loadConfig().then(renderFields).catch(() => {});
+    } finally { $("btnSave").disabled = false; }
+  }
+
+  // ---------- actions
+  async function dispatch(test) {
+    const btn = test ? $("btnTest") : $("btnCheck");
+    btn.disabled = true;
+    try {
+      await gh(`/actions/workflows/${WORKFLOW}/dispatches`, {method: "POST",
+        body: JSON.stringify({ref: "main", inputs: {test_email: test ? "true" : "false"}})});
+      toast(test ? "E-mail de test demandé : il arrive d'ici 1 à 2 minutes" : "Vérification lancée : résultats d'ici 1 à 3 minutes", 5000);
+      setTimeout(refresh, 70000); setTimeout(refresh, 150000);
+    } catch (e) {
+      toast("Impossible de lancer : " + e.message, 6000);
+    } finally { setTimeout(() => btn.disabled = false, 15000); }
+  }
+
+  async function login() {
+    const t = $("tokenInput").value.trim();
+    if (!t) return;
+    token = t;
+    try {
+      const r = await gh("");
+      if (r.status === 404) throw new Error("dépôt introuvable avec ce jeton (vérifie l'accès au dépôt)");
+      await loadConfig();
+      store.set(t);
+      $("loginDialog").close(); $("tokenInput").value = "";
+      renderAuth();
+      await loadEmailState().catch(() => {});
+      renderFields();
+      toast("Connecté");
+      refresh();
+    } catch (e) {
+      token = store.get();
+      toast("Connexion refusée : " + e.message, 6000);
+    }
+  }
+
+  async function refresh() {
+    try {
+      const [s, h, run] = await Promise.all([readDataFile("status.json"), readDataFile("history.json"), lastRun()]);
+      status = s; history = h || [];
+      render(run);
+    } catch (e) {
+      if (e.status === 401) { store.set(""); token = ""; renderAuth(); toast("Jeton expiré ou invalide : reconnecte-toi"); }
+      else toast("Chargement impossible : " + e.message);
+    }
+  }
+
+  // ---------- événements
+  $("patLink").href = "https://github.com/settings/personal-access-tokens/new";
+  $("repoName").textContent = `${OWNER}/${REPO}`;
+  $("btnLogin").onclick = () => $("loginDialog").showModal();
+  $("btnCancelLogin").onclick = () => $("loginDialog").close();
+  $("btnDoLogin").onclick = login;
+  $("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+  $("btnLogout").onclick = () => { store.set(""); token = ""; config = null; renderAuth(); toast("Déconnecté"); };
+  $("btnCheck").onclick = () => dispatch(false);
+  $("btnTest").onclick = () => dispatch(true);
+  $("btnSave").onclick = save;
+  $("btnAddStore").onclick = () => { readEditor(); config.stores.push({id: "", name: "", url: "", enabled: true}); renderEditor(); };
+  $("storeEditor").addEventListener("click", e => {
+    const i = e.target.dataset.del;
+    if (i === undefined) return;
+    readEditor(); config.stores.splice(+i, 1); renderEditor();
+  });
+
+  renderAuth();
+  if (token) {
+    loadConfig().then(renderFields).catch(() => {});
+    loadEmailState().catch(() => {});
+  }
+  refresh();
+  setInterval(refresh, 60000);
+})();
+</script>
+</body>
+</html>

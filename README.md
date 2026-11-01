@@ -1,57 +1,60 @@
-# 🎮 Zelda Stock Alert — Nintendo Switch 2, édition 40e anniversaire
+# Zelda Stock Monitor
 
-Un outil léger qui vérifie les pages de vente de la console Zelda en France et envoie un **e-mail dès qu'une page semble permettre de commander**. Il détecte un retour en stock après une rupture et évite les e-mails répétés si le stock reste affiché.
+Surveille la disponibilité de la **Nintendo Switch 2 – The Legend of Zelda – Édition 40e anniversaire** chez plusieurs enseignes françaises et envoie un e-mail dès qu'une offre valide (bouton de commande actif + prix ≤ plafond) apparaît.
 
-### Ce qui est préconfiguré
+Tout tourne gratuitement sur GitHub, sans rien installer sur ton ordinateur :
 
-Carrefour, Fnac, E.Leclerc (deux versions), Cultura, Cdiscount, Auchan et Boulanger. Les liens pointent vers la console Zelda, pas vers une catégorie générique. La fiche Boulanger renvoyait une erreur 404 lors de sa vérification initiale : sa surveillance ne fonctionnera pas tant que la fiche n'est pas accessible.
+- **GitHub Actions** vérifie les boutiques toutes les 5 minutes (GitHub peut parfois retarder un passage de quelques minutes).
+- **GitHub Pages** héberge le tableau de bord : `https://mirillif.github.io/zelda-stock-alert/`
+- Les résultats sont publiés sur la branche `data` (un seul commit, réécrit à chaque passage).
 
-Le prix maximal d'alerte est fixé à **600 €** pour éviter de recevoir des alertes concernant des revendeurs très chers. Ce filtre ne garantit pas l'identité du vendeur ; vérifie toujours le vendeur et le prix final.
+## Mise en route (une seule fois, ~10 min)
 
-## Installation sur GitHub (environ 10 minutes, une seule fois)
+1. **Mot de passe d'application Gmail**
+   Active la validation en 2 étapes sur ton compte Google, puis crée un mot de passe d'application : https://myaccount.google.com/apppasswords (16 caractères).
 
-1. Télécharge puis décompresse l'archive ZIP. Crée un dépôt GitHub **public** nommé `zelda-stock-alert` (évite un dépôt privé si tu ne veux pas consommer les minutes GitHub Actions de ton forfait). Ne mets aucune adresse e-mail ni aucun mot de passe dans le dépôt, même public.
-2. Avec **GitHub Desktop**, ajoute le dossier décompressé en tant que *Local repository* (option pour créer un dépôt si nécessaire), puis clique sur **Publish repository**. Conserve bien le dossier caché `.github` ; il contient la tâche automatique.
-3. Sur Google, active la **validation en deux étapes** du compte Gmail qui enverra les alertes. Génère un **mot de passe d'application** dans les paramètres du compte Google : https://myaccount.google.com/apppasswords . Si cette option n'est pas disponible, utilise un compte compatible SMTP ou un service de mail transactionnel.
-4. Sur le dépôt GitHub : **Settings → Secrets and variables → Actions → New repository secret**. Ajoute trois secrets :
-   - `SMTP_USERNAME` : ton adresse Gmail complète (ex. `compte@gmail.com`)
-   - `SMTP_PASSWORD` : le mot de passe d'application Gmail (16 caractères)
-   - `ALERT_TO` : l'adresse e-mail qui doit recevoir les alertes (la même ou une autre)
-5. Ouvre **Actions** → **🎮 Zelda — alerte stock** → **Run workflow**. Coche `test_email` puis lance : tu dois recevoir un mail « Test e-mail — Zelda Stock Alert ».
-6. Lance ensuite une fois **Run workflow** sans cocher `test_email` pour vérifier la liste des magasins. Le cron s'exécutera ensuite automatiquement, normalement toutes les 5 minutes.
+2. **Secrets GitHub** › *Settings › Secrets and variables › Actions › New repository secret*
+   - `SMTP_USERNAME` : ton adresse Gmail
+   - `SMTP_PASSWORD` : le mot de passe d'application
+   L'adresse de destination se règle ensuite depuis le tableau de bord (par défaut : l'adresse Gmail ci-dessus).
 
-Tu peux également utiliser un serveur SMTP différent de Gmail : configure les variables de dépôt `SMTP_HOST` et `SMTP_PORT` si besoin, et renseigne les secrets SMTP habituels.
+3. **Activer le tableau de bord** › *Settings › Pages* › Source : *Deploy from a branch* › Branche `main`, dossier `/docs` › Save.
 
-## Personnaliser les sites et le prix
+4. **Premier passage** › onglet *Actions* › *Zelda Stock Monitor* › *Run workflow*.
+   Coche « Envoyer seulement un e-mail de test » pour vérifier l'e-mail, puis relance sans la case pour la première vraie vérification.
 
-Dans `sites.json` :
-- Modifie `max_price_eur` (`600` par défaut ; `null` pour ne pas plafonner).
-- Passe `"enabled": false` pour ignorer un magasin.
-- Ajoute un magasin avec un identifiant unique, un nom et l'URL HTTPS de **sa fiche produit exacte**.
+5. **Connexion au tableau de bord** › bouton « Se connecter » › suis les instructions pour créer un jeton GitHub limité à ce dépôt (permissions *Actions*, *Contents*, *Secrets* en lecture/écriture). Le jeton reste dans ton navigateur.
 
-⚠️ Une nouvelle boutique peut utiliser une structure HTML différente : le moteur fonctionne mieux avec les enseignes déjà répertoriées, et il faudra éventuellement adapter ses règles de détection. Les offres *marketplace* ne sont pas vérifiées comme étant vendues directement par l'enseigne. Si un site bloque les robots (403, CAPTCHA, JavaScript obligatoire), le statut apparaîtra comme `unknown` : le script ne contourne pas ces protections.
+## Ce que fait le tableau de bord
 
-## Tester sur ton ordinateur (sans envoi)
+- Consultation (publique, lecture seule) : statut de chaque boutique, prix détecté, heure du dernier contrôle, historique des changements, avertissement si la surveillance s'arrête.
+- Une fois connecté : « Vérifier maintenant », « Tester l'e-mail », et réglage de l'adresse e-mail, de la fréquence, du prix maximal, des boutiques et de leurs URL.
 
-Avec Python 3.12+ :
+## Statuts
+
+| Statut | Signification |
+|---|---|
+| Disponible | Bouton de commande actif sur la fiche, confirmé par une 2e lecture, prix ≤ plafond → e-mail |
+| Trop cher | Commandable mais au-dessus du prix maximal → pas d'e-mail |
+| Rupture | Mention de rupture ou offre déclarée épuisée |
+| Vérification impossible | Blocage anti-robot, page introuvable, page rendue en JavaScript… Le système ne devine jamais |
+
+**Anti-doublons** : une boutique ne déclenche qu'un e-mail tant qu'elle reste disponible. Une nouvelle alerte n'est possible qu'après une rupture constatée. Un blocage temporaire ne réarme pas l'alerte.
+
+Si presque toutes les boutiques deviennent illisibles, un e-mail d'avertissement part (au plus une fois par 24 h).
+
+## Limites à connaître
+
+- Plusieurs enseignes (Amazon, Fnac, Cdiscount, Leclerc…) protègent leurs pages contre les robots. Depuis les serveurs GitHub, certaines seront souvent en « Vérification impossible ». C'est affiché tel quel ; garde aussi les alertes officielles des enseignes.
+- Le dépôt doit rester **public** : c'est ce qui rend les minutes GitHub Actions illimitées (un dépôt privé dépasserait le quota gratuit avec un contrôle toutes les 5 min). Aucun secret n'est exposé : identifiants e-mail et adresse de destination sont des *secrets* chiffrés, masqués dans les journaux publics.
+- GitHub met en pause les workflows planifiés après 60 jours sans activité sur le dépôt ; les publications sur la branche `data` comptent normalement comme activité. Le tableau de bord signale toute interruption.
+
+## Développement
 
 ```bash
-pip install -r requirements.txt
-python -m unittest discover -s tests -v
-python watcher.py --dry-run
+pip install -r requirements.txt pytest
+python -m pytest -q          # tests de détection hors ligne
+python watcher.py --dry-run  # vérification réelle sans e-mail ni enregistrement
 ```
 
-Pour un fonctionnement local permanent, configure ton planificateur système pour exécuter `python watcher.py` toutes les 5 minutes et renseigne les variables d'environnement SMTP. L'ordinateur doit rester allumé.
-
-## Fonctionnement et limites
-
-- Un passage vérifie chaque lien. Si une commande semble possible, le script vérifie une **deuxième fois**, environ 3 secondes après, avant d'envoyer l'e-mail.
-- Les boutons d'achat doivent être actifs, et les indices de rupture sont prioritaires pour réduire les fausses alertes.
-- `state.json` est automatiquement sauvegardé dans GitHub seulement lors d'un **changement d'état confirmé**, pour éviter les alertes répétées.
-- En cas de panne réseau, page inaccessible, réponse inconnue ou CAPTCHA, il n'envoie pas de fausse alerte.
-- Le contrôle toutes les cinq minutes n'est **pas une garantie de délai** : les actions programmées de GitHub peuvent commencer plus tard, et des stocks peuvent disparaître entre deux analyses.
-- Aucun achat n'est effectué automatiquement. Une alerte indique une **possibilité** de commande, pas un panier ou une réservation confirmé.
-- Les sites peuvent modifier leur code à tout moment et interrompre la détection. Consulte régulièrement l'onglet Actions pour voir les journaux et les erreurs.
-- Vérifie les conditions des sites et respecte leurs éventuelles restrictions d'accès automatique.
-
-**Arrêt immédiat :** dans GitHub → Actions → workflow → menu `…` → **Disable workflow**, ou désactive le dépôt.
+Le dossier `Zelda_Stock_Alert_v2/` est une ancienne copie, il n'est plus utilisé.
